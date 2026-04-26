@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:camera/camera.dart';
 import 'package:facial_liveness_verification/facial_liveness_verification.dart';
 import 'dashboard_screen.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 class LivenessScreen extends StatefulWidget {
   const LivenessScreen({super.key});
@@ -83,64 +84,146 @@ class _LivenessScreenState extends State<LivenessScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.black,
+      backgroundColor: Colors.white, // Matches Figma background
       body: Stack(
         children: [
-          // 4. Real Camera Preview
+          // 1. Camera Layer (The Background)
           if (_isInitialized && _detector.cameraController != null)
-            Center(
+            Positioned.fill(
               child: AspectRatio(
-                aspectRatio: 1 / _detector.cameraController!.value.aspectRatio,
+                aspectRatio: _detector.cameraController!.value.aspectRatio,
                 child: CameraPreview(_detector.cameraController!),
               ),
-            )
-          else
-            const Center(
-              child: CircularProgressIndicator(color: Color(0xFF83C5BE)),
             ),
 
-          // 5. Figma-style UI Overlay
-          _buildOverlay(),
+          // 2. The Custom Mask Layer (The Circle cutout)
+          // This dims the camera preview except for the circle in the middle
+          Positioned.fill(
+            child: ColorFiltered(
+              colorFilter: ColorFilter.mode(
+                Colors.white.withOpacity(0.9), // Dimming color
+                BlendMode.srcOut,
+              ),
+              child: Stack(
+                children: [
+                  Container(
+                    decoration: const BoxDecoration(
+                      color: Colors.black,
+                      backgroundBlendMode: BlendMode.dstOut,
+                    ),
+                  ),
+                  Align(
+                    alignment: Alignment.center,
+                    child: Container(
+                      height: 280, // Size of your circle
+                      width: 280,
+                      decoration: const BoxDecoration(
+                        color: Colors.white,
+                        shape: BoxShape.circle,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+
+          // 3. UI Overlay Layer
+          _buildNewOverlay(),
         ],
       ),
     );
   }
 
-  Widget _buildOverlay() {
+  Widget _buildNewOverlay() {
     return SafeArea(
-      child: Column(
-        children: [
-          const Padding(
-            padding: EdgeInsets.only(top: 40),
-            child: Text(
-              "Liveness Check",
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 40),
+        child: Column(
+          children: [
+            // Header Section
+            Text(
+              'Identity Verification',
               style: TextStyle(
-                color: Colors.white,
-                fontSize: 22,
+                fontSize: 24,
                 fontWeight: FontWeight.bold,
+                color: Colors.black.withOpacity(0.8),
               ),
             ),
-          ),
-          const Spacer(),
-          // Status Message Box
-          Container(
-            margin: const EdgeInsets.all(30),
-            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-            decoration: BoxDecoration(
-              color: const Color(0xFF006D77).withOpacity(0.8),
-              borderRadius: BorderRadius.circular(20),
-            ),
-            child: Text(
-              _status,
+            const SizedBox(height: 8),
+            const Text(
+              'Center your face in the frame',
               textAlign: TextAlign.center,
+              style: TextStyle(color: Colors.grey, fontSize: 16),
+            ),
+
+            const Spacer(), // Pushes circle to center
+            // 4. Verification Circle Border (Visual only)
+            Container(
+              width: 285,
+              height: 285,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                border: Border.all(color: const Color(0xFF0056D2), width: 4),
+              ),
+            ),
+
+            const SizedBox(height: 24),
+
+            // 5. Status / Challenge Tooltip (Blink/Smile)
+            if (_status.contains("Action Required"))
+              Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 12,
+                ),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFFFF9C4), // Yellow challenge box
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Text(
+                  _status.replaceAll("Action Required: ", ""),
+                  style: const TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 16,
+                  ),
+                ),
+              ),
+
+            const SizedBox(height: 16),
+
+            // 6. End-to-End Encrypted Badge (The Box below circle)
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              decoration: BoxDecoration(
+                color: const Color(0xFFF5F5F5),
+                borderRadius: BorderRadius.circular(20),
+              ),
+              child: const Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(Icons.shield_outlined, size: 16, color: Colors.black54),
+                  SizedBox(width: 8),
+                  Text(
+                    'End-to-end encrypted',
+                    style: TextStyle(fontSize: 12, color: Colors.black54),
+                  ),
+                ],
+              ),
+            ),
+
+            const Spacer(),
+
+            // Status footer
+            Text(
+              _status.contains("Action Required") ? "Verifying..." : _status,
               style: const TextStyle(
-                color: Colors.white,
-                fontSize: 16,
+                color: Colors.black45,
                 fontWeight: FontWeight.w500,
               ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

@@ -21,6 +21,7 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
           category: _selectedCategory,
           amount: amount,
           date: DateTime.now(),
+          title: '',
         ),
       );
       Navigator.pop(context);

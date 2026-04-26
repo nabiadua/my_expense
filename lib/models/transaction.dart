@@ -2,20 +2,24 @@ import 'package:hive/hive.dart';
 
 part 'transaction.g.dart';
 
-@HiveType(typeId: 1)
+@HiveType(typeId: 0) // typeId 0 is unique for this class
 class Transaction extends HiveObject {
   @HiveField(0)
-  late String category;
+  final String title;
 
   @HiveField(1)
-  late double amount;
+  final String category;
 
   @HiveField(2)
-  late DateTime date;
+  final DateTime date;
+
+  @HiveField(3)
+  final double amount; // Positive for Income, Negative for Expense
 
   Transaction({
+    required this.title,
     required this.category,
-    required this.amount,
     required this.date,
+    required this.amount,
   });
 }

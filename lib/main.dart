@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'services/database_service.dart';
 import 'screens/liveness_screen.dart';
 
@@ -7,7 +8,6 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   // 2. Wait for Hive to open 'allocations' and 'transactions'
-  // This prevents the "Box not found" error
   await DatabaseService.init();
 
   runApp(const MyExpenseApp());
@@ -20,9 +20,12 @@ class MyExpenseApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      title: 'Expense Tracker',
-      theme: ThemeData(primarySwatch: Colors.teal, useMaterial3: true),
-      // Start with Liveness Check for the HNG showcase
+      title: 'Sovereign Ledger',
+      theme: ThemeData(
+        useMaterial3: true,
+        scaffoldBackgroundColor: Colors.white,
+        textTheme: GoogleFonts.interTextTheme(),
+      ),
       home: const LivenessScreen(),
     );
   }

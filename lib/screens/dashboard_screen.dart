@@ -316,6 +316,7 @@ void _showAddTransaction(BuildContext context) {
                       category: cat.text,
                       amount: amount,
                       date: DateTime.now(),
+                      title: '',
                     ),
                   );
                   Navigator.pop(context);
